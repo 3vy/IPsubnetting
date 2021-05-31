@@ -5,3 +5,8 @@
 .greenmessages {
     color: green;
 }
+
+.borderError {
+    border-color: red;
+    border-style: solid;
+}
