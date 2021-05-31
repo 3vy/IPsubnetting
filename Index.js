@@ -243,6 +243,22 @@ function setGatewayIP(){
 
 }
 
+function setBits(){
+
+    var networkBits = getNetworkBits();
+    var subnetBits = getSubnetBits()
+    var hostBits = getHostBits();
+
+    var ipBits = dec2OctectBin(ottetto1)+dec2OctectBin(ottetto2)+dec2OctectBin(ottetto3)+dec2OctectBin(ottetto4);
+    
+    var bitrete = ipBits.substring(0, networkBits.length -subnetBits.length ); 
+    var bitsottorete = ipBits.substring( ( networkBits.length -subnetBits.length ), ( networkBits.length -subnetBits.length )+subnetBits.length  ); 
+    var bithost = ipBits.substring(( networkBits.length -subnetBits.length )+subnetBits.length, 32 );
+    document.getElementById("bitrete").innerHTML = bitrete;
+    document.getElementById("bitsottorete").innerHTML = bitsottorete;
+    document.getElementById("bithost").innerHTML = bithost;
+}
+
 function calculate() {
     clear();
 
@@ -268,4 +284,6 @@ function calculate() {
     setNumberOfHost();
 
     setGatewayIP();
+
+    setBits();
 }
