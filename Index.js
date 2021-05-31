@@ -68,6 +68,8 @@ function clear(){
     document.getElementById("ottettoBin2").innerHTML = "";
     document.getElementById("ottettoBin3").innerHTML = "";
     document.getElementById("ottettoBin4").innerHTML = "";
+
+    document.getElementById("gateways").innerHTML = "";
 }
 
 function getOctectValue(num){
@@ -126,10 +128,35 @@ function setNetValues(){
     document.getElementById("netBin4").innerHTML = dec2OctectBin(net4);
 }
 
+function getNetworkBits(){
+    return  (dec2OctectBin(sub1).toString() + dec2OctectBin(sub2).toString() + dec2OctectBin(sub3).toString() + dec2OctectBin(sub4).toString()).replaceAll("0", "");
+}
+
+function getSubnetBits(){
+    var networkBits = getNetworkBits();
+    var nbit = networkBits.length;
+    var r1 = (nbit %  8);
+    
+    return "".padEnd(r1, '1');
+}
+
+function getHostBits(){
+    var networkBits = getNetworkBits();
+    return "".padEnd((32-networkBits.length), '1');
+}
+
 function setBroadcastValues(){
-    var bitsSubnet =  (dec2OctectBin(sub1).toString() + dec2OctectBin(sub2).toString() + dec2OctectBin(sub3).toString() + dec2OctectBin(sub4).toString()).replaceAll("0", "");
+    //var bitsSubnet =  (dec2OctectBin(sub1).toString() + dec2OctectBin(sub2).toString() + dec2OctectBin(sub3).toString() + dec2OctectBin(sub4).toString()).replaceAll("0", "");
+    var bitsSubnet = getNetworkBits();
     var nbit = bitsSubnet.length;
     
+    /*  
+    var r1 = (nbit %  8);
+    var r2 = Math.pow(2, r1);
+    //alert(r2);
+    document.getElementById("nsubnet").innerHTML = r2;
+    */
+
     var bitsNetwork = (dec2OctectBin(net1).toString() + dec2OctectBin(net2).toString() + dec2OctectBin(net3).toString() + dec2OctectBin(net4).toString());
 
     var t1 = bitsNetwork.substring(0, nbit).padEnd(32, '1');
@@ -156,6 +183,66 @@ function setBroadcastValues(){
     document.getElementById("broBin4").innerHTML = _bro4;
 }
 
+function setNumberOfSubnet(){
+    var subnetBits =getSubnetBits();
+    var numberOfSubnet = Math.pow(2, subnetBits.length);
+    document.getElementById("nsubnet").innerHTML = numberOfSubnet;
+}
+
+function setNumberOfHost(){
+    var hostBits =getHostBits();
+    var numberOfHost = Math.pow(2, hostBits.length) -2 ;
+    document.getElementById("nhost").innerHTML = numberOfHost;
+}
+
+function setGatewayIP(){
+    var table = document.getElementById("gateways");
+
+    var subnetBits = getSubnetBits()
+    var nsubnet = Math.pow(2, subnetBits.length);
+    
+    var networkBits = getNetworkBits();
+    var ipBits = dec2OctectBin(ottetto1)+dec2OctectBin(ottetto2)+dec2OctectBin(ottetto3)+dec2OctectBin(ottetto4);
+    var networkBits2 = ipBits.substring(0, networkBits.length); 
+    var numerobitnetwork = networkBits.length - subnetBits.length; 
+    networkBits = networkBits2.substring(0, numerobitnetwork);
+
+    for(var x =0; x<nsubnet; x++)
+    {
+        var sub = "";
+
+        if (subnetBits.length>0){
+            sub = x.toString(2).padStart(subnetBits.length, '0');
+        }
+
+        var t1 = (networkBits + sub).padEnd(31, '0') + "1";
+        var _o1 = t1.substring(0, 8); 
+        var _o2 = t1.substring(8, 16); 
+        var _o3 = t1.substring(16, 24); 
+        var _o4 = t1.substring(24, 32);
+        
+        var _oo1 = bin2Dec(_o1); //& ottetto1;
+        var _oo2 = bin2Dec(_o2); //& ottetto2;
+        var _oo3 = bin2Dec(_o3); //& ottetto3;
+        var _oo4 = bin2Dec(_o4); //& ottetto4;
+
+
+        var row = table.insertRow(-1);
+        var cell0 = row.insertCell(0);
+        var cell1 = row.insertCell(1);
+        var cell2 = row.insertCell(2);
+        var cell3 = row.insertCell(3);
+        var cell4 = row.insertCell(4);
+        cell0.innerHTML = "gateway (" + sub + ")";
+        cell1.innerHTML = _oo1; 
+        cell2.innerHTML = _oo2;
+        cell3.innerHTML = _oo3;
+        cell4.innerHTML = _oo4;
+    }
+
+
+}
+
 function calculate() {
     clear();
 
@@ -176,5 +263,9 @@ function calculate() {
 
     setBroadcastValues();
 
-    // var bits2 = bits.replaceAll("0", "");
+    setNumberOfSubnet();
+
+    setNumberOfHost();
+
+    setGatewayIP();
 }
